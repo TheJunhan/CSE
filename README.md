@@ -1,3 +1,3 @@
 # CSE
-### lab1: https://github.com/TheJunhan/CSE/tree/lab1
-### lab2: https://github.com/TheJunhan/CSE/tree/lab2
+### lab1: <a href="https://github.com/TheJunhan/CSE/tree/lab1">Basic File System</a>
+### lab2: <a href="https://github.com/TheJunhan/CSE/tree/lab2">RPC and Lock Server</a>
