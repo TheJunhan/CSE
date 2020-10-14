@@ -34,6 +34,22 @@ lock_client_cache::acquire(lock_protocol::lockid_t lid)
 {
   int ret = lock_protocol::OK;
   // Your lab2 part3 code goes here
+  pthread_mutex_lock(&lockmutex);
+  if (lockmap.find(lid) == lockmap.end()) lockmap[lid] = new lockinfo();
+  lockinfo *info = lockmap[lid];
+  thread* latest_thread = new thread();
+
+  //还没有进程占用该锁
+  if (info->thread_list.empty())
+  {
+    state s = info->stat;
+    info->thread_list.push_back(latest_thread);
+    
+    if(s == FREE)
+    {
+      info->stat = LOCKED;
+    }
+  }
   return ret;
 }
 
