@@ -9,76 +9,90 @@
 #include "rpc.h"
 #include "lock_client.h"
 #include "lang/verify.h"
-#include <list>
+#include <pthread.h>
 #include <map>
+#include <list>
 
-
-// Classes that inherit lock_release_user can override dorelease so that 
+// Classes that inherit lock_release_user can override dorelease so that
 // that they will be called when lock_client releases a lock.
 // You will not need to do anything with this class until Lab 6.
 class lock_release_user {
- public:
-  virtual void dorelease(lock_protocol::lockid_t) = 0;
-  virtual ~lock_release_user() {};
+public:
+    virtual void dorelease(lock_protocol::lockid_t) = 0;
+
+    virtual ~lock_release_user() {};
 };
 
 class lock_client_cache : public lock_client {
- private:
-  class lock_release_user *lu;
-  int rlock_port;
-  std::string hostname;
-  std::string id;
-  pthread_mutex_t lockmutex;
+private:
+    class lock_release_user *lu;
 
-  enum message {
-    EMPTY,
-    RETRY,
-    REVOKE
-  };
-  enum state
-  {
-    NONE,
-    FREE,
-    LOCKED,
-    ACQUIRING,
-    RELEASING
-  };
+    int rlock_port;
+    std::string hostname;
+    std::string id;
 
-  struct thread 
-  {
-    pthread_cond_t cv;
-    thread()
-    {
-      pthread_cond_init(&cv, NULL);
-    }
-  };
-  struct lockinfo
-  {
-    state stat;
-    message msg;
-    std::list<thread *> thread_list;
+    enum Message {
+        EMPTY,
+        RETRY,
+        REVOKE
+    };
 
-    lockinfo()
-    {
-      stat = NONE;
-      msg = EMPTY;
-    }
-  };
+    enum LockState {
+        NONE,
+        ACQUIRING,
+        FREE,
+        RELEASING,
+        LOCKED,
+    };
 
-  std::map<lock_protocol::lockid_t, lockinfo *> lockmap;
-  lock_protocol::status wait_lock(lockinfo *info, 
-                                  lock_protocol::lockid_t lid, 
-                                  thread *latest_thread);
- public:
-  static int last_port;
-  lock_client_cache(std::string xdst, class lock_release_user *l = 0);
-  virtual ~lock_client_cache() {};
-  lock_protocol::status acquire(lock_protocol::lockid_t);
-  lock_protocol::status release(lock_protocol::lockid_t);
-  rlock_protocol::status revoke_handler(lock_protocol::lockid_t, 
-                                        int &);
-  rlock_protocol::status retry_handler(lock_protocol::lockid_t, 
-                                       int &);
+
+    struct QueuingThread {
+
+        pthread_cond_t cv;
+
+        QueuingThread() {
+            pthread_cond_init(&cv, NULL);
+        }
+    };
+
+
+    struct LockEntry {
+        LockState state;
+        Message message;
+        std::list<QueuingThread *> threads;
+
+        LockEntry() {
+            state = NONE;
+            message = EMPTY;
+        }
+    };
+
+
+    pthread_mutex_t lockManagerLock;
+
+    std::map<lock_protocol::lockid_t, LockEntry *> lockManager;
+
+    lock_protocol::status blockUntilGot(LockEntry *,
+                                        lock_protocol::lockid_t,
+                                        QueuingThread *thisThread);
+
+
+public:
+    static int last_port;
+
+    lock_client_cache(std::string xdst, class lock_release_user *l = 0);
+
+    virtual ~lock_client_cache();
+
+    lock_protocol::status acquire(lock_protocol::lockid_t);
+
+    lock_protocol::status release(lock_protocol::lockid_t);
+
+    rlock_protocol::status revoke_handler(lock_protocol::lockid_t,
+                                          int &);
+
+    rlock_protocol::status retry_handler(lock_protocol::lockid_t,
+                                         int &);
 };
 
 
