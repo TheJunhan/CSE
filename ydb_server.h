@@ -16,6 +16,7 @@ class ydb_server {
 protected:
 	extent_client *ec;
 	lock_client *lc;
+	// lock_client_cache *lc;
 public:
 	ydb_server(std::string, std::string);
 	virtual ~ydb_server();

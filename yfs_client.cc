@@ -15,10 +15,8 @@ int so_many = 0;
 
 yfs_client::yfs_client(std::string extent_dst, std::string lock_dst)
 {
-    cout << "开始ec" << endl;
     cout << extent_dst << endl;
     ec = new extent_client(extent_dst);
-    cout << "ec结束" << endl;
     // Lab2: Use lock_client_cache when you test lock_cache
     // lc = new lock_client(lock_dst);
     lc = new lock_client_cache(lock_dst);
@@ -93,6 +91,7 @@ yfs_client::getfile(inum inum, fileinfo &fin)
     int r = OK;
 
     // printf("getfile %016llx\n", inum);
+    // printf("%d拿到了锁：", inum);
     lc->acquire(inum);
     extent_protocol::attr a;
     if (ec->getattr(inum, a) != extent_protocol::OK) {

@@ -16,7 +16,7 @@ ydb_server::ydb_server(std::string extent_dst, std::string lock_dst) {
 	// cout << "ydbserver初始化开始" << endl;
 	// cout << extent_dst << endl;
 	ec = new extent_client(extent_dst);
-	cout << "ydbserver结束" << endl;
+	// cout << "ydbserver结束" << endl;
 	lc = new lock_client(lock_dst);
 	// lc = new lock_client_cache(lock_dst);
 	long starttime = timestamp();
@@ -44,7 +44,6 @@ unsigned long long  ydb_server::xjh_hash(const std::string key)
 	{
 		res += (unsigned long long)key.at(i);
 	}
-	if (res == 97) res = 200;
 	return (res % 1024);
 }
 

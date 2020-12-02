@@ -1,3 +1,3 @@
-./start_ydb.sh NONE
-./test-lab3-durability.sh NONE
+./start_ydb.sh 2PL
+./test-lab3-durability.sh 2PL
 ./stop_ydb.sh

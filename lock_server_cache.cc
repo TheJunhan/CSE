@@ -9,9 +9,11 @@
 #include "handle.h"
 #include "tprintf.h"
 
+using namespace std;
 
 lock_server_cache::lock_server_cache() {
     VERIFY(pthread_mutex_init(&lockManagerLock, NULL) == 0);
+    cout << "启动的是server_cache" << endl;
 }
 
 
@@ -20,7 +22,7 @@ int lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string clientID
     int r;
     std::map<lock_protocol::lockid_t, LockEntry *>::iterator iter;
     pthread_mutex_lock(&lockManagerLock);
-
+    cout << "server acquire了" << lid << endl;
 
     iter = lockManager.find(lid);
     if (iter == lockManager.end()) {
@@ -89,6 +91,7 @@ int lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string clientID
 int
 lock_server_cache::release(lock_protocol::lockid_t lid, std::string clientID,
                            int &r) {
+    cout << "server release了" << lid << endl;
     lock_protocol::status ret = lock_protocol::OK;
     pthread_mutex_lock(&lockManagerLock);
     LockEntry *lockEntry = lockManager[lid];
