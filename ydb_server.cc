@@ -43,9 +43,9 @@ unsigned long long ydb_server::xjh_hash(const std::string key)
 	for(int i = 0; i < key.size(); ++i)
 	{
 		if(key.at(i) <= '9' && key.at(i) >= '0')
-			res += ((unsigned long long)key.at(i)) * 13 * i;
+			res += ((unsigned long long)key.at(i)) * 13 * (i + 1);
 		else
-			res += (unsigned long long)key.at(i) * i;
+			res += (unsigned long long)key.at(i) * (i + 1);
 	}
 	return (res % 1024);
 }
