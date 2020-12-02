@@ -5,16 +5,39 @@
 using namespace std;
 
 //#define DEBUG 1
-//判断成环
-bool check_circle(vector<vecotr<opt> >::iterator origin, vector<vecotr<opt> >::iterator current)
+//找到依赖
+vector<vector<opt> >::iterator ydb_server_2pl::depend(vector<vector<opt> >::iterator origin)
 {
-	
+	unsigned long long dst_vaid = origin->at(origin->size() - 1).vaid;
+	vector<vector<opt> >::iterator i = tra.begin();
+	for(; i != tra.end(); ++i)
+	{
+		if(i == origin) continue;
+		for(int j = 1; j < i->size(); ++j)
+		{
+			//对i存在依赖
+			if(dst_vaid == i->at(j).vaid)
+			return i;
+		}
+	}
+	//不存在依赖关系
+	return tra.end();
+}
+//判断成环
+bool ydb_server_2pl::check_circle(vector<vector<opt> >::iterator origin, vector<vector<opt> >::iterator current)
+{
+	if(origin == current) return true;
+	vector<vector<opt> >::iterator next = depend(current);
+	if(next == tra.end()) return false;
+	return check_circle(origin, next);
 }
 //判断死锁
-bool ydb_server_2pl::judge(vector<vecotr<opt> >::iterator dst)
+bool ydb_server_2pl::judge(vector<vector<opt> >::iterator dst)
 {
-	
-	return false;
+	//找到第一个依赖
+	vector<vector<opt> >::iterator first = depend(dst);
+	if(first == tra.end()) return false;
+	return check_circle(dst, first);
 }
 
 bool check_own(vector<vector<opt> >::iterator dst, unsigned long long num, int caller)
@@ -28,15 +51,22 @@ bool check_own(vector<vector<opt> >::iterator dst, unsigned long long num, int c
 }
 
 //hash
-unsigned long long xjh_hash(const std::string key)
-{
-	unsigned long long res = 0;
-	for(int i = 0; i < key.size(); ++i)
-	{
-		res += (unsigned long long)key.at(i);
-	}
-	return (res % 1024);
-}
+// unsigned long long xjh_hash(const std::string key)
+// {
+// 	unsigned long long res = 0;
+// 	for(int i = 0; i < key.size(); ++i)
+// 	{
+// 		if(key.at(i) <= '9' && key.at(i) >= '0')
+// 			res += ((unsigned long long)key.at(i)) * 13 % 7;
+// 		else
+// 			res += (unsigned long long)key.at(i);
+// 	}
+// 	return (res % 1024);
+// }
+// unsigned long long xjh_hash(const std::string key)
+// {
+// 	return 100;
+// }
 
 //找到自己对应的transaction
 vector<vector<opt> >::iterator ydb_server_2pl::find(ydb_protocol::transaction_id id)
@@ -81,6 +111,7 @@ ydb_protocol::status ydb_server_2pl::transaction_commit(ydb_protocol::transactio
 		cout << endl;
 	}
 	vector<vector<opt> >::iterator dst = find(id);
+	if(dst == tra.end()) return ydb_protocol::TRANSIDINV;
 	// for(vector<opt>::iterator i = dst.begin(); i != dst.end(); ++i)
 	// {
 	// 	//把值写入es，其他操作情况不需要在这里处理
@@ -111,7 +142,7 @@ ydb_protocol::status ydb_server_2pl::transaction_commit(ydb_protocol::transactio
 		else if(dst->at(i).op == 0) continue;
 		if(!check_own(dst, dst->at(i).vaid, i)) 
 		{
-			cout << "将要release" << dst->at(i).vaid << endl;	
+			cout << "将要release" << dst->at(i).vaid << endl;
 			lc->release(dst->at(i).vaid);
 		}
 	}
@@ -126,6 +157,13 @@ ydb_protocol::status ydb_server_2pl::transaction_abort(ydb_protocol::transaction
 	{
 		if(i->at(0).id == id)
 		{
+			//放锁
+			for(int j = 0; j < i->size(); ++j)
+			{
+				if(i->at(j).op == 0) continue;
+				cout << "由于abort了，将要release" << i->at(j).vaid << endl;
+				lc->release(i->at(j).vaid);
+			}
 			tra.erase(i);
 			break;
 		}
@@ -135,17 +173,21 @@ ydb_protocol::status ydb_server_2pl::transaction_abort(ydb_protocol::transaction
 
 ydb_protocol::status ydb_server_2pl::get(ydb_protocol::transaction_id id, const std::string key, std::string &out_value) {
 	// lab3: your code here
-	//首先判断之前是否读过
+	//首先判断之前是否读过或者写过
 	unsigned long long has = xjh_hash(key);
 	vector<vector<opt> >::iterator dst = find(id);
+	if(dst == tra.end()) return ydb_protocol::TRANSIDINV;
+
+	bool has_touch = false;
 	for(int i = 0; i < dst->size(); ++i) 
 	{
 		if (dst->at(i).vaid == has)
 		{
+			has_touch = true;
 			out_value = dst->at(i).content;
-			return ydb_protocol::OK;
 		}
 	}
+	if(has_touch) return ydb_protocol::OK;
 	//没读过
 	ec->get(has, out_value);
 	opt o(id, 1);
@@ -167,7 +209,10 @@ ydb_protocol::status ydb_server_2pl::get(ydb_protocol::transaction_id id, const 
 ydb_protocol::status ydb_server_2pl::set(ydb_protocol::transaction_id id, const std::string key, const std::string value, int &) {
 	// lab3: your code here
 	unsigned long long has = xjh_hash(key);
+	cout << "把" << key << "哈希到了" << has << endl;
 	vector<vector<opt> >::iterator dst = find(id);
+	if(dst == tra.end()) return ydb_protocol::TRANSIDINV;
+
 	opt o(id, 2);
 	o.vaid = has;
 	o.content = value;
@@ -186,8 +231,10 @@ ydb_protocol::status ydb_server_2pl::set(ydb_protocol::transaction_id id, const 
 
 ydb_protocol::status ydb_server_2pl::del(ydb_protocol::transaction_id id, const std::string key, int &) {
 	// lab3: your code here
-	vector<vector<opt> >::iterator dst = find(id);
 	unsigned long long has = xjh_hash(key);
+	vector<vector<opt> >::iterator dst = find(id);
+	if(dst == tra.end()) return ydb_protocol::TRANSIDINV;
+
 	opt o(id, 3);
 	o.vaid = has;
 	dst->push_back(o);

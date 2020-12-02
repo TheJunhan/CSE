@@ -36,7 +36,9 @@ public:
 	ydb_server_2pl(std::string, std::string);
 	~ydb_server_2pl();
 	vector<vector<opt> >::iterator find(ydb_protocol::transaction_id id);
-	bool judge();
+	bool judge(vector<vector<opt> >::iterator dst);
+	vector<vector<opt> >::iterator depend(vector<vector<opt> >::iterator origin);
+	bool check_circle(vector<vector<opt> >::iterator origin, vector<vector<opt> >::iterator current);
 	// void addopt(optname opt, unsigned long long vaid, string content);
 	ydb_protocol::status transaction_begin(int, ydb_protocol::transaction_id &);
 	ydb_protocol::status transaction_commit(ydb_protocol::transaction_id, int &);

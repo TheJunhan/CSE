@@ -4,6 +4,8 @@
 #include <cstdio>
 #include "ydb_client.h"
 
+using namespace std;
+
 #define CHECK(express, errmsg) do { \
 	if (!(express)) { \
 		printf("Error%d : '%s' at %s:%d : %s \n", ++global_err_count, #express, __FILE__, __LINE__, errmsg); \
@@ -38,7 +40,6 @@ int test_transaction_functionality(ydb_client &y) {
 		CHECK(r == "300", "repeatable read value error");
 	y.set("b", "210");
 	y.transaction_commit();
-	
 	y.transaction_begin();
 	r = y.get("a");
 		// 4. read committed value
@@ -60,10 +61,8 @@ int test_transaction_exception(ydb_client &y) {
 		CHECK(r == "400", "read self modified committed value error");
 	// manully call transaction abort, so it should return OK rather than ABORT
 	y.transaction_abort();
-
 	// 7. check handling of invalid transaction
 	CHECK_TRANS_EXCEPTION(y.get("a"), ydb_protocol::TRANSIDINV, "invalid transaction check error");
-
 	y.transaction_begin();
 	r = y.get("b");
 		// 8. aborted transaction should not change origin value

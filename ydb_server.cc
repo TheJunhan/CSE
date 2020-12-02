@@ -37,15 +37,22 @@ ydb_server::~ydb_server() {
 
 //tools
 
-unsigned long long  ydb_server::xjh_hash(const std::string key)
+unsigned long long ydb_server::xjh_hash(const std::string key)
 {
 	unsigned long long res = 0;
 	for(int i = 0; i < key.size(); ++i)
 	{
-		res += (unsigned long long)key.at(i);
+		if(key.at(i) <= '9' && key.at(i) >= '0')
+			res += ((unsigned long long)key.at(i)) * 13 * i;
+		else
+			res += (unsigned long long)key.at(i) * i;
 	}
 	return (res % 1024);
 }
+// unsigned long long ydb_server::xjh_hash(const std::string key)
+// {
+// 	return 200;
+// }
 
 ydb_protocol::status ydb_server::transaction_begin(int, ydb_protocol::transaction_id &out_id) {    // the first arg is not used, it is just a hack to the rpc lib
 	// no imply, just return OK
@@ -71,7 +78,7 @@ ydb_protocol::status ydb_server::get(ydb_protocol::transaction_id id, const std:
 		return ydb_protocol::RPCERR;
 	}
 	ec->get(xjh_hash(key), out_value);
-	cout << "调用了get其中key为：" << xjh_hash(key) << "得到的value为：";
+	// cout << "调用了get其中key为：" << xjh_hash(key) << "得到的value为：";
 	cout << out_value << endl;
 	return ydb_protocol::OK;
 }
@@ -85,13 +92,13 @@ ydb_protocol::status ydb_server::set(ydb_protocol::transaction_id id, const std:
 		return ydb_protocol::RPCERR;
 	}
 	ec->put(xjh_hash(key), value);
-	cout << "调用了set，其中key为：" << xjh_hash(key) << "value为：" << value << endl;
+	// cout << "调用了set，其中key为：" << xjh_hash(key) << "value为：" << value << endl;
 	return ydb_protocol::OK;
 }
 
 ydb_protocol::status ydb_server::del(ydb_protocol::transaction_id id, const std::string key, int &) {
 	// lab3: your code here
-	cout << "调用了del，要删的元素key为：" << endl;
+	// cout << "调用了del，要删的元素key为：" << endl;
 	extent_protocol::attr a;
 	if(ec->getattr(xjh_hash(key), a) != extent_protocol::OK) 
 	{
