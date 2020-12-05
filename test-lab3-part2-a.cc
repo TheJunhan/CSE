@@ -146,30 +146,30 @@ void *start_thread2(void *arg_) {
 
 
 int main(int argc, char **argv) {
-	cout << "开始了简单测试" << endl;
+	// cout << "开始了简单测试" << endl;
 	if (argc <= 1) {
 		printf("Usage: %s <ydb_server_listen_port>\n", argv[0]);
 		return 0;
 	}
-	cout << "come over 1" << endl;
+	// cout << "come over 1" << endl;
 	global_ydb_server_port = string(argv[1]);
 
 	pthread_t t0;
 	pthread_t t1;
 	pthread_t t2;
-	cout << "come over 2" << endl;
+	// cout << "come over 2" << endl;
 
 	pthread_create(&t0, NULL, start_thread0, NULL);
 	pthread_create(&t1, NULL, start_thread1, NULL);
 	pthread_create(&t2, NULL, start_thread2, NULL);
-	cout << "come over 3" << endl;
+	// cout << "come over 3" << endl;
 
 	pthread_join(t0, NULL);
-	cout << "come over 4" << endl;
+	// cout << "come over 4" << endl;
 	pthread_join(t1, NULL);
-	cout << "come over 5" << endl;
+	// cout << "come over 5" << endl;
 	pthread_join(t2, NULL);
-	cout << "come over 6" << endl;
+	// cout << "come over 6" << endl;
 
 	if (global_err_count != 0) {
 		printf("[x_x] Fail test-lab3-part2-a\n");

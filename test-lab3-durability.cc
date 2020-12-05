@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char **argv) {
 	string r;
-	cout << "调用了test-lab3-durability" << endl;
+	// cout << "调用了test-lab3-durability" << endl;
 	if (argc <= 1) {
 		printf("Usage: `%s <ydb_server_listen_port>` or `%s <ydb_server_listen_port>` RESTART\n", argv[0], argv[0]);
 		return 0;
@@ -15,9 +15,9 @@ int main(int argc, char **argv) {
 
 	//ydb_client y = ydb_client(string(argv[1]));
 	ydb_client y((string(argv[1])));
-	cout << "开始了" << endl;
+	// cout << "开始了" << endl;
 	if (argc == 3 && string(argv[2]) == "RESTART") {
-		cout << "这里是重启的" << endl;
+		// cout << "这里是重启的" << endl;
 		y.transaction_begin();
 		string r1 = y.get("a");
 		string r2 = y.get("b");
