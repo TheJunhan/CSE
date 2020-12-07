@@ -19,6 +19,6 @@
 ./stop_ydb.sh
 
 #complex
-# ./start_ydb.sh 2PL
-# ./test-lab3-part2-3-complex 4772
-# ./stop_ydb.sh
+./start_ydb.sh 2PL
+./test-lab3-part2-3-complex 4772
+./stop_ydb.sh

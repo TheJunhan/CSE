@@ -37,7 +37,7 @@ private:
 	traMap tra;
 	lockMap locks;
 	static pthread_mutex_t ydb_mutex;
-	static pthread_cond_t ydb_cond;
+	pthread_cond_t ydb_cond[1025];
 	int current_id;
 public:
 	ydb_server_2pl(std::string, std::string);
