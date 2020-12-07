@@ -1,7 +1,7 @@
 # 这个是测试durability
-./start_ydb.sh 2PL
-./test-lab3-durability.sh 2PL
-./stop_ydb.sh
+# ./start_ydb.sh 2PL
+# ./test-lab3-durability.sh 2PL
+# ./stop_ydb.sh
 
 # 这个是测试basic
 ./start_ydb.sh 2PL
