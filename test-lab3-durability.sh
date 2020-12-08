@@ -9,8 +9,8 @@ fi
 timeout 30s ./test-lab3-durability 4772
 
 pkill -9 ydb_server
-# (./ydb_server $1 4772 2772 3772 >ydb_server.log &)
-(./ydb_server $1 4772 2772 3772 &)
+(./ydb_server $1 4772 2772 3772 >ydb_server.log &)
+# (./ydb_server $1 4772 2772 3772 &)
 # (./ydb_server $1 4772 31536 3772 >ydb_server.log &)
 sleep 2    # enlarge the waiting time
 
