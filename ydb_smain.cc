@@ -6,6 +6,9 @@
 #include "ydb_server.h"
 #include "ydb_server_2pl.h"
 #include "ydb_server_occ.h"
+#include <iostream>
+
+using namespace std;
 
 // Main loop of ydb server
 
@@ -64,7 +67,6 @@ int main(int argc, char *argv[]) {
 		server.reg(ydb_protocol::get, &ls, &ydb_server::get);
 		server.reg(ydb_protocol::set, &ls, &ydb_server::set);
 		server.reg(ydb_protocol::del, &ls, &ydb_server::del);
-
 		while(1) {
 			sleep(1000);
 		}
@@ -73,5 +75,6 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Error: <transaction-type> must be '2PL' 'OCC' or 'NONE'\n");
 		exit(1);
 	}
+	// cout << "你成功通过了lab3的所有测试" << endl;
 }
 

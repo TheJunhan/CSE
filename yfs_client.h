@@ -12,7 +12,8 @@
 
 class yfs_client {
   extent_client *ec;
-  lock_client *lc;
+  // lock_client *lc;
+  lock_client_cache *lc;
  public:
 
   typedef unsigned long long inum;
@@ -34,13 +35,22 @@ class yfs_client {
     std::string name;
     yfs_client::inum inum;
   };
+    struct symlinkinfo
+  {
+    unsigned long long size;
+    unsigned int atime;
+    unsigned int mtime;
+    unsigned int ctime;
+  };
 
  private:
   static std::string filename(inum);
   static inum n2i(std::string);
+  void yfs_remove(inum id);
 
  public:
   yfs_client(std::string, std::string);
+  int addFile(inum parent, const char *name, mode_t mode, inum &ino_out, extent_protocol::types type);
 
   bool isfile(inum);
   bool isdir(inum);
@@ -58,6 +68,9 @@ class yfs_client {
   int mkdir(inum , const char *, mode_t , inum &);
   
   /** you may need to add symbolic link related methods here.*/
+  int symlink(const char* link, inum parent, const char* name, inum &ino);
+  int readlink(inum ino, std::string &link);
+  int getsymlink(inum, symlinkinfo &);
 };
 
 #endif 

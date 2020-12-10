@@ -1,4 +1,7 @@
 #include "ydb_client.h"
+#include <iostream>
+
+using namespace std;
 
 //#define DEBUG 1
 
@@ -48,6 +51,7 @@ void ydb_client::transaction_abort() {
 }
 
 std::string ydb_client::get(const std::string &key) {
+	// cout << "client 调用了 get" << endl;
 	std::string value;
 	ydb_protocol::status ret = cl->call(ydb_protocol::get, this->current_transaction, key, value);
 	if (ret != ydb_protocol::OK) {
@@ -58,6 +62,7 @@ std::string ydb_client::get(const std::string &key) {
 }
 
 void ydb_client::set(const std::string &key, const std::string &value) {
+	// cout << "client 调用了 set" << endl;
 	int r;
 	ydb_protocol::status ret = cl->call(ydb_protocol::set, this->current_transaction, key, value, r);
 	if (ret != ydb_protocol::OK) {
@@ -67,6 +72,7 @@ void ydb_client::set(const std::string &key, const std::string &value) {
 }
 
 void ydb_client::del(const std::string &key) {
+	// cout << "client 调用了 del" << endl;
 	int r;
 	ydb_protocol::status ret = cl->call(ydb_protocol::del, this->current_transaction, key, r);
 	if (ret != ydb_protocol::OK) {

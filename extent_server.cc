@@ -8,6 +8,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <iostream>
+
+using namespace std;
 
 extent_server::extent_server() 
 {
@@ -17,7 +20,7 @@ extent_server::extent_server()
 int extent_server::create(uint32_t type, extent_protocol::extentid_t &id)
 {
   // alloc a new inode and return inum
-  printf("extent_server: create inode\n");
+  // printf("extent_server: create inode\n");
   id = im->alloc_inode(type);
 
   return extent_protocol::OK;
@@ -30,13 +33,13 @@ int extent_server::put(extent_protocol::extentid_t id, std::string buf, int &)
   const char * cbuf = buf.c_str();
   int size = buf.size();
   im->write_file(id, cbuf, size);
-  
+  // cout << "写了: id = " << id << "cbuf = " << cbuf << "size = " << size << endl;
   return extent_protocol::OK;
 }
 
 int extent_server::get(extent_protocol::extentid_t id, std::string &buf)
 {
-  printf("extent_server: get %lld\n", id);
+  // printf("extent_server: get %lld\n", id);
 
   id &= 0x7fffffff;
 
@@ -50,13 +53,13 @@ int extent_server::get(extent_protocol::extentid_t id, std::string &buf)
     buf.assign(cbuf, size);
     free(cbuf);
   }
-
+  // cout << "读了：id = " << id << "cbuf = " << cbuf;
   return extent_protocol::OK;
 }
 
 int extent_server::getattr(extent_protocol::extentid_t id, extent_protocol::attr &a)
 {
-  printf("extent_server: getattr %lld\n", id);
+  // printf("extent_server: getattr %lld\n", id);
 
   id &= 0x7fffffff;
   
@@ -70,7 +73,7 @@ int extent_server::getattr(extent_protocol::extentid_t id, extent_protocol::attr
 
 int extent_server::remove(extent_protocol::extentid_t id, int &)
 {
-  printf("extent_server: write %lld\n", id);
+  // printf("extent_server: write %lld\n", id);
 
   id &= 0x7fffffff;
   im->remove_file(id);

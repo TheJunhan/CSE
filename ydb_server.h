@@ -16,6 +16,7 @@ class ydb_server {
 protected:
 	extent_client *ec;
 	lock_client *lc;
+	// lock_client_cache *lc;
 public:
 	ydb_server(std::string, std::string);
 	virtual ~ydb_server();
@@ -25,6 +26,7 @@ public:
 	virtual ydb_protocol::status get(ydb_protocol::transaction_id, const std::string, std::string &);
 	virtual ydb_protocol::status set(ydb_protocol::transaction_id, const std::string, const std::string, int &);
 	virtual ydb_protocol::status del(ydb_protocol::transaction_id, const std::string, int &);
+	unsigned long long xjh_hash(const std::string key);
 };
 
 #endif

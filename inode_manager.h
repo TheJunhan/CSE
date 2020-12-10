@@ -1,5 +1,3 @@
-// inode layer interface.
-
 #ifndef inode_h
 #define inode_h
 
@@ -93,4 +91,6 @@ class inode_manager {
 };
 
 #endif
+
+
 
