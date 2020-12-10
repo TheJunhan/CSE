@@ -9,7 +9,6 @@
 #include "handle.h"
 #include "tprintf.h"
 
-using namespace std;
 
 lock_server_cache::lock_server_cache() {
     VERIFY(pthread_mutex_init(&lockManagerLock, NULL) == 0);
@@ -21,6 +20,7 @@ int lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string clientID
     int r;
     std::map<lock_protocol::lockid_t, LockEntry *>::iterator iter;
     pthread_mutex_lock(&lockManagerLock);
+
 
     iter = lockManager.find(lid);
     if (iter == lockManager.end()) {
@@ -108,7 +108,7 @@ lock_server_cache::release(lock_protocol::lockid_t lid, std::string clientID,
 
 lock_protocol::status
 lock_server_cache::stat(lock_protocol::lockid_t lid, int &r) {
-    // tprintf("stat request\n");
+    tprintf("stat request\n");
     r = nacquire;
     return lock_protocol::OK;
 }
