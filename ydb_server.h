@@ -10,11 +10,13 @@
 #include "lock_client.h"
 #include "lock_client_cache.h"
 #include "ydb_protocol.h"
+#include "extent_cache_client.h"
 
 
 class ydb_server {
 protected:
-	extent_client *ec;
+	extent_cache_client *ec;
+	// extent_client *ec;
 	lock_client *lc;
 	// lock_client_cache *lc;
 public:

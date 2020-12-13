@@ -50,7 +50,8 @@ hfiles1=rpc/fifo.h rpc/connection.h rpc/rpc.h rpc/marshall.h rpc/method_thread.h
 	rpc/thr_pool.h rpc/pollmgr.h rpc/jsl_log.h rpc/slock.h rpc/rpctest.cc\
 	lock_protocol.h lock_server.h lock_client.h gettime.h gettime.cc lang/verify.h \
         lang/algorithm.h
-hfiles2=yfs_client.h extent_client.h extent_protocol.h extent_server.h lock_client_cache.h lock_server_cache.h handle.h tprintf.h
+# hfiles2=yfs_client.h extent_client.h extent_protocol.h extent_server.h lock_client_cache.h lock_server_cache.h handle.h tprintf.h
+hfiles2=yfs_client.h extent_cache_client.h extent_protocol.h extent_cache_server.h lock_client_cache.h lock_server_cache.h handle.h tprintf.h
 hfiles3=lock_client_cache.h lock_server_cache.h handle.h tprintf.h
 
 rpclib=rpc/rpc.cc rpc/connection.cc rpc/pollmgr.cc rpc/thr_pool.cc rpc/jsl_log.cc gettime.cc
@@ -71,18 +72,23 @@ lock_tester : $(patsubst %.cc,%.o,$(lock_tester)) rpc/$(RPCLIB)
 lock_server=lock_server.cc lock_smain.cc lock_server_cache.cc handle.cc
 lock_server : $(patsubst %.cc,%.o,$(lock_server)) rpc/$(RPCLIB)
 
-part1_tester=part1_tester.cc extent_client.cc extent_server.cc inode_manager.cc
+# part1_tester=part1_tester.cc extent_client.cc extent_server.cc inode_manager.cc
+part1_tester=part1_tester.cc extent_cache_client.cc extent_cache_server.cc inode_manager.cc
 part1_tester : $(patsubst %.cc,%.o,$(part1_tester))
-yfs_client=yfs_client.cc extent_client.cc fuse.cc extent_server.cc inode_manager.cc handle.cc
+# yfs_client=yfs_client.cc extent_client.cc fuse.cc extent_server.cc inode_manager.cc handle.cc
+yfs_client=yfs_client.cc extent_cache_client.cc fuse.cc extent_cache_server.cc inode_manager.cc handle.cc
 ifeq ($(LAB2GE),1)
   yfs_client += lock_client.cc lock_client_cache.cc
 endif
 yfs_client : $(patsubst %.cc,%.o,$(yfs_client)) rpc/$(RPCLIB)
 
-extent_server=extent_server.cc extent_smain.cc inode_manager.cc
+# extent_server=extent_server.cc extent_smain.cc inode_manager.cc
+# extent_server : $(patsubst %.cc,%.o,$(extent_server)) rpc/$(RPCLIB)
+
+extent_server=extent_cache_server.cc extent_smain.cc inode_manager.cc
 extent_server : $(patsubst %.cc,%.o,$(extent_server)) rpc/$(RPCLIB)
 
-ydb_server=ydb_server.cc ydb_server_2pl.cc ydb_server_occ.cc ydb_smain.cc extent_client.cc lock_client.cc lock_client_cache.cc
+ydb_server=ydb_server.cc ydb_server_2pl.cc ydb_server_occ.cc ydb_smain.cc extent_cache_client.cc lock_client.cc lock_client_cache.cc
 ydb_server : $(patsubst %.cc,%.o,$(ydb_server)) rpc/$(RPCLIB)
 
 #ydb_client=ydb_client.cc ydb

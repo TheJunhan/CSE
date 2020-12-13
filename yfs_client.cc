@@ -11,12 +11,12 @@
 #include <string>
 #include <ctime>
 using namespace std;
-int so_many = 0;
 
 yfs_client::yfs_client(std::string extent_dst, std::string lock_dst)
 {
     cout << extent_dst << endl;
-    ec = new extent_client(extent_dst);
+    // ec = new extent_client(extent_dst);
+    ec = new extent_cache_client(extent_dst);
     // Lab2: Use lock_client_cache when you test lock_cache
     // lc = new lock_client(lock_dst);
     lc = new lock_client_cache(lock_dst);
@@ -342,14 +342,7 @@ yfs_client::write(inum ino, size_t size, off_t off, const char *data,
     string buf;
     lc->acquire(ino);
     ec->get(ino, buf);
-    if(off + size > buf.size()) so_many = off + size;
-    else so_many = buf.size();
-    // cout << "到目前为止文件应该有" << so_many << "这么大" << endl;
     if(off + size > buf.size()) buf.resize(off + size, '\0');
-    // for (size_t i = off; i < off + size; ++i)
-    // {
-    //     buf[i] = dst[i - off];
-    // }
     buf.replace(off, size, dst);
     // cout << "从write写了：" << buf << endl;
     bytes_written = size;

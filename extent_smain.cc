@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "extent_server.h"
+#include "extent_cache_server.h"
 #include <unistd.h>
 // Main loop of extent server
+
+// #define USE_DATACACHE
 
 int
 main(int argc, char *argv[])
@@ -24,13 +27,21 @@ main(int argc, char *argv[])
   }
 
   rpcs server(atoi(argv[1]), count);
+#ifndef USE_DATACACHE
   extent_server ls;
-
   server.reg(extent_protocol::get, &ls, &extent_server::get);
   server.reg(extent_protocol::getattr, &ls, &extent_server::getattr);
   server.reg(extent_protocol::put, &ls, &extent_server::put);
   server.reg(extent_protocol::remove, &ls, &extent_server::remove);
   server.reg(extent_protocol::create, &ls, &extent_server::create);
+#else 
+  extent_cache_server ls;
+  server.reg(extent_protocol::get, &ls, &extent_cache_server::get);
+  server.reg(extent_protocol::getattr, &ls, &extent_cache_server::getattr);
+  server.reg(extent_protocol::put, &ls, &extent_cache_server::put);
+  server.reg(extent_protocol::remove, &ls, &extent_cache_server::remove);
+  server.reg(extent_protocol::create, &ls, &extent_cache_server::create);
+#endif
 
   while(1)
     sleep(1000);

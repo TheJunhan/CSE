@@ -13,7 +13,8 @@ static long timestamp(void) {
 }
 
 ydb_server::ydb_server(std::string extent_dst, std::string lock_dst) {
-	ec = new extent_client(extent_dst);
+	// ec = new extent_client(extent_dst);
+	ec = new extent_cache_client(extent_dst);
 	lc = new lock_client(lock_dst);
 	// lc = new lock_client_cache(lock_dst);
 	long starttime = timestamp();

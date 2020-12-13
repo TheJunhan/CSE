@@ -9,8 +9,7 @@ bool checkBlockId(blockid_t dst, const char *buf)
 {
   if(dst < 0 || dst >= BLOCK_NUM || !buf) 
   {
-    //std::cout << "illegal blockid or buf" << std::endl;
-    printf("illegal blockid!\n");
+    // printf("illegal blockid!\n");
     return false;
   }
   return true;
@@ -28,11 +27,6 @@ disk::read_block(blockid_t id, char *buf)
 {
   if(checkBlockId(id - 1, buf))
   memcpy(buf, blocks[id - 1], BLOCK_SIZE);
-  // cout << "bm本次读了" << id - 1 ;
-  // for(int i = 0; i < BLOCK_SIZE; ++i)
-  // cout << "读出了" << blocks[id - 1][i];
-  // cout << endl;
-  //printf("read %b block: %s", id, *buf);
 }
 
 void
@@ -40,19 +34,9 @@ disk::write_block(blockid_t id, const char *buf)
 {
   if(checkBlockId(id - 1, buf))
   memcpy(blocks[id - 1], buf, BLOCK_SIZE);
-  // cout << "bm本次写了：" << id - 1;
-  // for (int i = 0; i < BLOCK_SIZE; ++i)
-  // cout << "写了" << blocks[id - 1][i];
-  // cout << endl;
-  //printf("write %b block: %s", id, *buf);
 }
 
 // block layer -----------------------------------------
-//找到合适的block
-// blockid_t find_fit_block(int begin, int end, blockid_t start) 
-// {
-//   return 1;
-// }
 
 // Allocate a free disk block.
 blockid_t
@@ -63,31 +47,11 @@ block_manager::alloc_block()
      * note: you should mark the corresponding bit in block bitmap when alloc.
      * you need to think about which block you can start to be allocated.
      */
-    /*
-    * uint32_t bid = 0;
-    while (bid + IBLOCK(INODE_NUM, BLOCK_NUM) <= BLOCK_NUM)
-    {
-        char rec[BLOCK_SIZE];
-        d->read_block(BBLOCK(bid), rec);
-        char mask = 0x80;
-        //当前bid在bitmap中是第几个
-        uint32_t tmp = bid - (BBLOCK(bid) - 2) * BLOCK_NUM * 8;
-        //如果对应的bitmap是空的
-        if (!(rec[tmp / 8] & (mask >> bid % 8)))
-        {
-            rec[tmp / 8] = rec[tmp / 8] | (mask >> (bid % 8));
-            d->write_block(BBLOCK(bid), rec);
-            return bid + IBLOCK(INODE_NUM, BLOCK_NUM);
-        }
-        bid++;
-    }
-    */
     for (int i = IBLOCK(INODE_NUM, BLOCK_NUM); i <= BLOCK_NUM; ++i) if (!using_blocks[i]) {
         using_blocks[i] = 1;
         return i;
     }
     printf("\t\tNo free block, sorry about that.\n");
-    // exit(-1);
     return 0;
 }
 
@@ -98,15 +62,6 @@ block_manager::free_block(uint32_t id)
      * your code goes here.
      * note: you should unmark the corresponding bit in the block bitmap when free.
      */
-    /*
-    * uint32_t bid = id - IBLOCK(INODE_NUM, BLOCK_NUM);
-    uint32_t tmp = bid - (BBLOCK(bid) - 2) * BLOCK_SIZE * 8;
-    char buf[BLOCK_SIZE];
-    d->read_block(BBLOCK(bid), buf);
-    char mask = 0x80;
-    buf[tmp / 8] = buf[tmp / 8] & ~(mask >> (bid % 8));
-    d->write_block(BBLOCK(bid), buf);
-    */
     using_blocks[id] = 0;
 }
 
@@ -271,14 +226,11 @@ void inode_manager::read_file(uint32_t inum, char **buf_out, int *size)
   int final_size = dst->size;
   if (final_size == 0) return;
   char* res = (char *)malloc(BLOCK_NUM * BLOCK_SIZE);
-  // char* res = (char *)malloc(final_size);
   int blockNum = (final_size - 1) / BLOCK_SIZE + 1;
-  // cout << inum << "有这么多block" << blockNum << endl;
-  cout << "这里是readfile" << inum << "\t" << dst->blocks[0] << endl;
+
   if(blockNum <= NDIRECT) 
   {
     for (int i = 0; i < blockNum; ++i) bm->read_block(dst->blocks[i], res + BLOCK_SIZE * i);
-    cout << "本次读的结果：" << res << endl;
   }
   else
   {
@@ -328,7 +280,6 @@ inode_manager::write_file(uint32_t inum, const char *buf, int size)
         bm->write_block(dst->blocks[i], buf + BLOCK_SIZE * i);
         char tmp_buf[BLOCK_SIZE];
         bm->read_block(dst->blocks[i], tmp_buf);
-        cout << "本次写的时候在" << dst->blocks[i] << "写了：" << buf << "读出了：" << tmp_buf << endl;
       }
     }
     //后面的要用到前面的不用
@@ -446,7 +397,6 @@ inode_manager::write_file(uint32_t inum, const char *buf, int size)
       for(int i = blockNumAfter; i < blockNumBefore; ++i) bm->free_block(list[i - NDIRECT]);
     }
   }
-  cout << "这里是writefile" << inum << "\t" << dst->blocks[0] << endl;
   dst->size = size;
   dst->atime = time(0);
   dst->ctime = time(0);

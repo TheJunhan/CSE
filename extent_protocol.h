@@ -16,7 +16,9 @@ class extent_protocol {
     get,
     getattr,
     remove,
-    create
+    create,
+
+    remind = 0x7001
   };
 
   enum types {
