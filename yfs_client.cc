@@ -14,7 +14,6 @@ using namespace std;
 
 yfs_client::yfs_client(std::string extent_dst, std::string lock_dst)
 {
-    cout << extent_dst << endl;
     // ec = new extent_client(extent_dst);
     ec = new extent_cache_client(extent_dst);
     // Lab2: Use lock_client_cache when you test lock_cache
@@ -180,7 +179,6 @@ int yfs_client::addFile(inum parent, const char *name, mode_t mode, inum &ino_ou
     ec->create(type, ino_out);
     ec->get(parent, content);
     content += str_name + ',' + filename(ino_out) + ';';
-    // cout << "addFile 增加了 ：" << content << endl;
     ec->put(parent, content);
     lc->release(parent);
     return OK;
@@ -223,7 +221,6 @@ yfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out)
     std::string content;
     ec->get(parent, content);
     std::string dst = (std::string)name;
-    // cout << "lookup 在寻找：" << dst << endl;
     for(size_t i = 0; i < content.size(); ++i)
     {
         std::string filename;
@@ -233,7 +230,6 @@ yfs_client::lookup(inum parent, const char *name, bool &found, inum &ino_out)
             i++;
         }
         i++;
-        // cout << "现在lookup发现了：" << filename << endl;
         if(filename == dst) {
             found = true;
             std::string num;
@@ -262,7 +258,6 @@ yfs_client::readdir(inum dir, std::list<dirent> &list)
      * and push the dirents to the list.
      */
     std::string content;
-    // cout << "开始读" << dir << endl;
     lc->acquire(dir);
     ec->get(dir, content);
     for(size_t i = 0; i < content.size(); ++i) 
@@ -284,10 +279,8 @@ yfs_client::readdir(inum dir, std::list<dirent> &list)
         dirent info;
         info.inum = tmp;
         info.name = filename;
-        // cout << "readdir读取了：" << filename << " ";
         list.push_back(info);
     }
-    // cout << endl;
     lc->release(dir);
     return r;
 }
@@ -296,20 +289,16 @@ int
 yfs_client::read(inum ino, size_t size, off_t off, std::string &data)
 {
     int r = OK;
-    //cout << "开始read" << endl;
     /*
      * your code goes here.
      * note: read using ec->get().
      */
     if(off < 0) {
-        //cout << "有负的" << endl;
         return RPCERR;
     }
     string buf;
     lc->acquire(ino);
     ec->get(ino, buf);
-    //cout << "本文件大小：" << buf.size() << " 要读取大小：" << size << endl;
-    //cout << "读的文件含有" << buf << endl;
     if (off <= buf.size())
     {
         if (off + size <= buf.size())
@@ -321,9 +310,6 @@ yfs_client::read(inum ino, size_t size, off_t off, std::string &data)
     else 
       data = "";
     lc->release(ino);
-    // for(int i = off; i < buf.size())
-    //cout << "其实data里面有：" << data.size() << endl;
-    //cout << "结束 read" << endl;
     return r;
 }
 
@@ -344,7 +330,6 @@ yfs_client::write(inum ino, size_t size, off_t off, const char *data,
     ec->get(ino, buf);
     if(off + size > buf.size()) buf.resize(off + size, '\0');
     buf.replace(off, size, dst);
-    // cout << "从write写了：" << buf << endl;
     bytes_written = size;
     ec->put(ino, buf);
     lc->release(ino);
@@ -354,7 +339,6 @@ yfs_client::write(inum ino, size_t size, off_t off, const char *data,
 int yfs_client::unlink(inum parent,const char *name)
 {
     int r = OK;
-    // cout << "调用了unlink" << endl;
     /*
      * your code goes here.
      * note: you should remove the file using ec->remove,
@@ -398,7 +382,6 @@ int yfs_client::unlink(inum parent,const char *name)
     }
     if(!flag) 
     {
-        // cout << "并没有你要的文件" << dstname << endl;
         return IOERR;
     }
     ec->put(parent, res);
@@ -407,7 +390,6 @@ int yfs_client::unlink(inum parent,const char *name)
     lc->acquire(dstino);
     ec->remove(dstino);
     lc->release(dstino);
-    // cout << "unlink 结束" << endl; 
     lc->release(parent);
     return r;
 }
@@ -432,7 +414,6 @@ void yfs_client::yfs_remove(yfs_client::inum id)
 
 int yfs_client::symlink(const char* link, inum parent, const char* name, inum &ino)
 {
-    //cout << "调用了symlink" << endl;
     mode_t mode = 0;
     int r = extent_protocol::OK;
     
@@ -464,13 +445,11 @@ int yfs_client::getsymlink(inum ino, symlinkinfo &info)
     info.ctime = a.ctime;
     info.mtime = a.mtime;
     info.size = a.size;
-    //cout << "调用 getsymlink: " << ino << endl;
     return r;
 }
 
 int yfs_client::readlink(inum ino, string &link)
 {
-    //cout << "你调用了readlink" << endl;
     int r = extent_protocol::OK;
     lc->acquire(ino);
     if(ec->get(ino, link) != extent_protocol::OK) 
@@ -479,7 +458,6 @@ int yfs_client::readlink(inum ino, string &link)
         return IOERR;
     }
     lc->release(ino);
-    //cout << "你的readlink输出了" << link << endl;
     return r;
 }
 

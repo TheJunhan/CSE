@@ -9,19 +9,20 @@
 using namespace std;
 
 typedef map<extent_protocol::extentid_t, string> DataCache;
+typedef map<extent_protocol::extentid_t, extent_protocol::attr> AttrCache;
 
 class extent_cache_client
 {
 private:
-    DataCache cache;
+    DataCache datacache;
+    AttrCache attrcache;
     rpcc *cl;
     string myId;
+    int myIdInt;
     
 public:
     extent_cache_client(std::string dst);
     ~extent_cache_client();
-
-    // int remind(extent_cache_protocol::extentid_t dstid);
 
     extent_protocol::status create(uint32_t type, extent_protocol::extentid_t &eid);
     extent_protocol::status get(extent_protocol::extentid_t eid, 
@@ -30,6 +31,10 @@ public:
                                             extent_protocol::attr &a);
     extent_protocol::status put(extent_protocol::extentid_t eid, std::string buf);
     extent_protocol::status remove(extent_protocol::extentid_t eid);
+
+    extent_protocol::status remind_handler(extent_protocol::extentid_t eid, int &);
+
+    
 };
 
 #endif

@@ -29,7 +29,7 @@ ydb_server::ydb_server(std::string extent_dst, std::string lock_dst) {
 
 ydb_server::~ydb_server() {
 	delete lc;
-	delete ec;
+	// delete ec;
 }
 
 //tools
