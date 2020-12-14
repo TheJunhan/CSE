@@ -14,10 +14,14 @@ using namespace std;
 
 extent_cache_server::extent_cache_server() 
 {
+  // cout << "using cache server" << endl;
   im = new inode_manager();
 }
 
-int extent_cache_server::create(uint32_t type, extent_protocol::extentid_t &id)
+extent_cache_server::~extent_cache_server()
+{}
+
+int extent_cache_server::create(string cid, uint32_t type, extent_protocol::extentid_t &id)
 {
   // alloc a new inode and return inum
   id = im->alloc_inode(type);
@@ -25,7 +29,7 @@ int extent_cache_server::create(uint32_t type, extent_protocol::extentid_t &id)
   return extent_protocol::OK;
 }
 
-int extent_cache_server::put(extent_protocol::extentid_t id, std::string buf, int &)
+int extent_cache_server::put(string cid, extent_protocol::extentid_t id, std::string buf, int &)
 {
   id &= 0x7fffffff;
   
@@ -35,7 +39,7 @@ int extent_cache_server::put(extent_protocol::extentid_t id, std::string buf, in
   return extent_protocol::OK;
 }
 
-int extent_cache_server::get(extent_protocol::extentid_t id, std::string &buf)
+int extent_cache_server::get(string cid, extent_protocol::extentid_t id, std::string &buf)
 {
   // printf("extent_cache_server: get %lld\n", id);
 
@@ -55,7 +59,7 @@ int extent_cache_server::get(extent_protocol::extentid_t id, std::string &buf)
   return extent_protocol::OK;
 }
 
-int extent_cache_server::getattr(extent_protocol::extentid_t id, extent_protocol::attr &a)
+int extent_cache_server::getattr(string cid, extent_protocol::extentid_t id, extent_protocol::attr &a)
 {
   // printf("extent_cache_server: getattr %lld\n", id);
 
@@ -69,10 +73,10 @@ int extent_cache_server::getattr(extent_protocol::extentid_t id, extent_protocol
   return extent_protocol::OK;
 }
 
-int extent_cache_server::remove(extent_protocol::extentid_t id, int &)
+int extent_cache_server::remove(string cid, extent_protocol::extentid_t id, int &)
 {
   // printf("extent_cache_server: write %lld\n", id);
-
+  
   id &= 0x7fffffff;
   im->remove_file(id);
  

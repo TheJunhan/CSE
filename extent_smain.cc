@@ -7,7 +7,7 @@
 #include <unistd.h>
 // Main loop of extent server
 
-// #define USE_DATACACHE
+#define USE_DATACACHE
 
 int
 main(int argc, char *argv[])

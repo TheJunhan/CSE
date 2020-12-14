@@ -22,11 +22,11 @@ public:
     extent_cache_server();
     ~extent_cache_server();
 
-    int create(uint32_t type, extent_protocol::extentid_t &id);
-    int put(extent_protocol::extentid_t id, std::string, int &);
-    int get(extent_protocol::extentid_t id, std::string &);
-    int getattr(extent_protocol::extentid_t id, extent_protocol::attr &);
-    int remove(extent_protocol::extentid_t id, int &);
+    int create(string cid, uint32_t type, extent_protocol::extentid_t &id);
+    int put(string cid, extent_protocol::extentid_t id, std::string, int &);
+    int get(string cid, extent_protocol::extentid_t id, std::string &);
+    int getattr(string cid, extent_protocol::extentid_t id, extent_protocol::attr &);
+    int remove(string cid, extent_protocol::extentid_t id, int &);
     //提醒客户端把数据删掉
     // int reminder(extent_protocol::extentid_t);
 };

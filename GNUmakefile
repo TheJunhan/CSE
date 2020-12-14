@@ -126,7 +126,7 @@ test-lab4-fxmark=test-lab4-fxmark.c
 test-lab4-fxmark: $(patsubst %.cc,%.o,$(test-lab4-fxmark)) rpc/$(RPCLIB)
 
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -std=c++11
 
 fuse.o: fuse.cc
 	$(CXX) -c $(CXXFLAGS) $(FUSEFLAGS) $(MACFLAGS) $<

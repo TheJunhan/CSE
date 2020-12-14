@@ -15,7 +15,8 @@ class extent_cache_client
 private:
     DataCache cache;
     rpcc *cl;
-
+    string myId;
+    
 public:
     extent_cache_client(std::string dst);
     ~extent_cache_client();
